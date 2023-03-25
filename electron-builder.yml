@@ -1,0 +1,12 @@
+appId: com.jseashell.multigit
+productName: MultiGit
+copyright: Copyright © 2023 John Schellinger
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null
