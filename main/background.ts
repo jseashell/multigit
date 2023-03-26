@@ -1,6 +1,6 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
-import simpleGit, { CleanOptions } from 'simple-git';
+import simpleGit, { CleanOptions, TaskOptions } from 'simple-git';
 import { createWindow } from './helpers';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
@@ -53,5 +53,16 @@ ipcMain.on('git:log', async (event, args) => {
 
   event.returnValue = {
     data: history,
+  };
+});
+
+ipcMain.on('git:current-branch', async (event, args) => {
+  const currentBranch = await git.branch({
+    '--show-current': null,
+  } as TaskOptions);
+
+  console.debug('git:current-branch', currentBranch);
+  event.returnValue = {
+    data: currentBranch,
   };
 });
