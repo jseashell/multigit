@@ -1,6 +1,6 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
-import simpleGit from 'simple-git';
+import simpleGit, { CleanOptions } from 'simple-git';
 import { createWindow } from './helpers';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
@@ -11,8 +11,11 @@ if (isProd) {
   app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
 
-const git = simpleGit(undefined, {
-  baseDir: process.cwd(),
+const baseDir = '/Users/jschelli/git/know-client'; // process.cwd();
+
+simpleGit().clean(CleanOptions.FORCE);
+const git = simpleGit({
+  baseDir: baseDir,
   binary: 'git',
   maxConcurrentProcesses: 6,
   trimmed: false,
@@ -39,22 +42,16 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
-ipcMain.on('gitLog', (event, args) => {
-  console.debug('gitLog');
+ipcMain.on('cwd', (event, args) => {
+  event.returnValue = baseDir;
+});
 
-  const history = git.log();
+ipcMain.on('git:log', async (event, args) => {
+  console.debug('git:log');
 
-  event.returnValue = JSON.stringify({
+  const history = await git.log();
+
+  event.returnValue = {
     data: history,
-  });
-});
-
-ipcMain.on('pingPongAsync', (event, args) => {
-  console.debug('pingPongAsync');
-  event.sender.send('pingPongAsync', `IPC: "${args}"`);
-});
-
-ipcMain.on('pingPong', (event, args) => {
-  console.debug('pingPong');
-  event.returnValue = `IPC: "${args}"`;
+  };
 });
