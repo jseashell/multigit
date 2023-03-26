@@ -2,19 +2,20 @@ import electron, { IpcRenderer } from 'electron';
 import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
+import Button from '../components/button';
 
 function Home() {
   const ipcRenderer: IpcRenderer = electron.ipcRenderer;
 
-  const [isAsyncCheckd, setIsAsyncChecked] = React.useState(false);
+  const [isAsyncChecked, setIsAsyncChecked] = React.useState(false);
   const [data, setData] = React.useState('');
 
   const handleAsyncChange = () => {
-    setIsAsyncChecked(!isAsyncCheckd);
+    setIsAsyncChecked(!isAsyncChecked);
   };
 
   const onClickPingPong = () => {
-    if (isAsyncCheckd) {
+    if (isAsyncChecked) {
       ipcRenderer.send('pingPongAsync', 'Hello async world!');
     } else {
       const data = ipcRenderer.sendSync('pingPong', 'Hello world!');
@@ -47,19 +48,19 @@ function Home() {
       <Head>
         <title>MultiGit</title>
       </Head>
-      <div className='grid grid-col-1 text-2xl w-full text-center'>
+      <div className='grid grid-col-1 w-full'>
         <img className='ml-auto mr-auto' src='/images/logo.png' />
         <h1>MultiGit</h1>
         <h2>Manage multiple git repositories in one dashboard</h2>
         <hr />
         <div>
-          <button onClick={onClickPingPong}>Ping pong</button>
+          <Button onClick={onClickPingPong}>Ping pong</Button>
           <label>
-            <input type='checkbox' checked={isAsyncCheckd} onChange={handleAsyncChange} />
+            <input type='checkbox' className='ml-1 mr-1' checked={isAsyncChecked} onChange={handleAsyncChange} />
             async
           </label>
         </div>
-        <button onClick={onClickWithGitLog}>Git Log</button>
+        <Button onClick={onClickWithGitLog}>Git Log</Button>
         <pre>
           <code>{data}</code>
         </pre>

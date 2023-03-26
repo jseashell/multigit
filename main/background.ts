@@ -1,6 +1,6 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
-import simpleGit, { SimpleGitOptions } from 'simple-git';
+import simpleGit from 'simple-git';
 import { createWindow } from './helpers';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
@@ -10,6 +10,13 @@ if (isProd) {
 } else {
   app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
+
+const git = simpleGit(undefined, {
+  baseDir: process.cwd(),
+  binary: 'git',
+  maxConcurrentProcesses: 6,
+  trimmed: false,
+});
 
 (async () => {
   await app.whenReady();
@@ -32,15 +39,8 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
-console.debug('cwd', process.cwd());
-const baseDir = '/Users/jschelli/git/multigit';
-console.debug('baseDir', baseDir);
-
 ipcMain.on('gitLog', (event, args) => {
   console.debug('gitLog');
-  const git = simpleGit(baseDir, {
-    maxConcurrentProcesses: 3,
-  } as SimpleGitOptions);
 
   const history = git.log();
 
@@ -49,9 +49,9 @@ ipcMain.on('gitLog', (event, args) => {
   });
 });
 
-ipcMain.on('asyncPingPong', (event, args) => {
-  console.debug('asyncPingPong');
-  event.sender.send('asyncPingPong', `IPC: "${args}"`);
+ipcMain.on('pingPongAsync', (event, args) => {
+  console.debug('pingPongAsync');
+  event.sender.send('pingPongAsync', `IPC: "${args}"`);
 });
 
 ipcMain.on('pingPong', (event, args) => {
