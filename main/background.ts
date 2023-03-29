@@ -55,7 +55,6 @@ ipcMain.on('git:log', async (event, args) => {
   // '"subject":"%s",' +
 
   const gitLog = await git.log({
-    // '--max-count': '15',
     '--all': null,
     [pretty]: null,
   });
