@@ -10,15 +10,17 @@ function GitCommitComponent(props: GitCommitProps) {
 
   return (
     <React.Fragment>
-      <div className='flex w-full select-none cursor-pointer overflow-hidden' onContextMenu={handleContextMenu}>
+      <div
+        className='flex w-full items-center select-none cursor-pointer overflow-hidden'
+        onContextMenu={handleContextMenu}>
         {sortRefs(props.commit?.refs).map((ref: string) => {
           return <GitRefComponent gitRef={ref} currentBranch={props.currentBranch}></GitRefComponent>;
         })}
-        <p className='flex grow truncate'>{formatSubject(props.commit?.sanitizedSubject)}</p>
+        <span className='flex grow text-sm truncate'>{formatSubject(props.commit?.sanitizedSubject)}</span>
         <InitialsAvatar name={props.commit?.author?.name}></InitialsAvatar>
-        <span className='flex-none text-ellipsis pl-2 pr-2'>{props.commit?.author?.name}</span>
-        <p className='flex-none pl-2 pr-2'>{props.commit?.abbreviatedCommit}</p>
-        <p className='flex-none pl-2 pr-2'>{formatAuthorDate(props.commit?.author?.date)}</p>
+        <span className='flex-none truncate text-sm pl-2 pr-2'>{props.commit?.author?.name}</span>
+        <span className='flex-none text-sm pl-2 pr-2'>{props.commit?.abbreviatedCommit}</span>
+        <span className='flex-none text-sm pl-2 pr-2'>{formatAuthorDate(props.commit?.author?.date)}</span>
       </div>
     </React.Fragment>
   );

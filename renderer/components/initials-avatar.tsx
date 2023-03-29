@@ -12,7 +12,7 @@ function InitialsAvatar(props: InitialsAvatarProps) {
     let color = '#';
     for (let i = 0; i < 3; i++) {
       const value = (hash >> (i * 8)) & 0xff;
-      color += ('00' + value.toString(16)).substring(-2);
+      color += ('00' + value.toString(16)).substr(-2);
     }
 
     return color;
@@ -23,8 +23,8 @@ function InitialsAvatar(props: InitialsAvatarProps) {
   return (
     <React.Fragment>
       <span
-        className='w-6 h-6 flex justify-center items-center text-xs rounded-full'
-        style={{ backgroundColor: color }}>
+        className='w-4 h-4 flex flex-none justify-center items-center rounded-full'
+        style={{ backgroundColor: color, fontSize: '8px' }}>
         {initials}
       </span>
     </React.Fragment>

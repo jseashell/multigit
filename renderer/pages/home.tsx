@@ -40,6 +40,10 @@ function Home() {
     setHistory(gitLog);
   }, []);
 
+  const handleContextMenu = () => {
+    // TODO
+  };
+
   return (
     <React.Fragment>
       <Head>
@@ -51,7 +55,7 @@ function Home() {
         <hr />
         <ul>
           {history?.data?.map((commit, i) => (
-            <li key={i} className='flex w-full p-2'>
+            <li key={i} className='w-full flex m-px' onContextMenu={handleContextMenu}>
               <GitCommitComponent commit={commit} currentBranch={currentBranch.data}></GitCommitComponent>
             </li>
           ))}
