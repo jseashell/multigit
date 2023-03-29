@@ -21,7 +21,6 @@ function GitRef(props: GitRefProps) {
     } else if (ref.includes('HEAD ->')) {
       // Local HEAD
       const branch = '\u2713 ' + ref.match(/HEAD -> (.*)/)[1];
-      console.log('HEAD', branch);
       return (
         <span className='whitespace-nowrap w-fit border border-red-300 bg-red-900 rounded text-sm px-2 mr-1'>
           {branch}

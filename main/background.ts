@@ -64,7 +64,7 @@ ipcMain.on('git:log', async (event, args) => {
     '"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
 
   const gitLog = await git.log({
-    // '--max-count': '5',
+    '--max-count': '15',
     [pretty]: null,
   });
 

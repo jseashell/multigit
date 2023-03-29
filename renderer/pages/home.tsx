@@ -22,7 +22,6 @@ function Home() {
     setCwd(cwd);
 
     const gitLog = ipcRenderer.sendSync('git:log');
-    console.log('gitLog', gitLog);
     setHistory(gitLog);
   }, []);
 
@@ -42,7 +41,7 @@ function Home() {
         <ul>
           {history?.data?.map((commit, i) => (
             <li key={i} className='w-full flex m-px' onContextMenu={handleContextMenu}>
-              <GitCommitComponent commit={commit}></GitCommitComponent>
+              <GitCommitComponent commit={commit} previousCommit={i > 0 ? history.data[i] : null}></GitCommitComponent>
             </li>
           ))}
         </ul>
