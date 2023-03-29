@@ -11,3 +11,8 @@ function Button(props: any) {
 }
 
 export default Button;
+
+export interface ButtonProps {
+  onClick: Function;
+  children: any;
+}

@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron';
+import { app, ipcMain, Menu, MenuItem } from 'electron';
 import serve from 'electron-serve';
 import simpleGit, { CleanOptions } from 'simple-git';
 import { createWindow } from './helpers';
@@ -47,33 +47,48 @@ ipcMain.on('cwd', (event, args) => {
 });
 
 ipcMain.on('git:log', async (event, args) => {
-  // const history = await git.log({
-  //   '--all': null,
-  //   '--decorate': null,
-  //   '--oneline': null,
-  //   '--graph': null,
-  // });
+  const pretty =
+    '--pretty=format:{' +
+    '"commit":"%H",' +
+    '"abbreviatedCommit":"%h",' +
+    '"tree":"%T",' +
+    '"abbreviatedTree":"%t",' +
+    '"parent":"%P",' +
+    '"abbreviatedParent":"%p",' +
+    '"refs":"%D",' +
+    // TODO Body and subject do not escape non-whitespace characters
+    // '"body":"%b",' +
+    // '"subject":"%s",' +
+    '"sanitizedSubject":"%f",' +
+    '"author":{"name":"%aN","email":"%aE","date":"%aI"},' +
+    '"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
 
-  const history = await git.log({
-    // '--max-count': '5',
-    // "body":"%b"
-    '--pretty=format:{"commit":"%H","abbreviated_commit":"%h","tree":"%T","abbreviated_tree":"%t","parent":"%P","abbreviated_parent":"%p","refs":"%D","sanitized_subject_line":"%f","subject":"%s","author":{"name":"%aN","email":"%aE","date":"%aI"},"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},':
-      null,
+  const gitLog = await git.log({
+    '--max-count': '5',
+    [pretty]: null,
   });
 
-  // convert the history data to a valid JSON string: strip the trailing comma and adding array brackets around it
-  const json = JSON.parse(`[${history.all[0].hash.substring(0, history.all[0].hash.length - 1)}]`);
-  console.log('history', json);
-
+  const data = `[${gitLog.all[0].hash.substring(0, gitLog.all[0].hash.length - 1)}]`;
+  const history = JSON.parse(data);
   event.returnValue = {
-    data: json,
+    data: history,
   };
 });
 
 ipcMain.on('git:current-branch', async (event, args) => {
   const currentBranch = (await git.branch()).current;
-  console.debug('git:current-branch', currentBranch);
   event.returnValue = {
     data: currentBranch,
   };
+});
+
+ipcMain.on('context-menu', (_, props) => {
+  const menu = new Menu();
+  if (props.isEditable) {
+    menu.append(new MenuItem({ label: 'Cut', role: 'cut' }));
+    menu.append(new MenuItem({ label: 'Copy', role: 'copy' }));
+    menu.append(new MenuItem({ label: 'Paste', role: 'paste' }));
+  }
+
+  menu.popup();
 });

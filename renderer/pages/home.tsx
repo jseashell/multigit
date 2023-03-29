@@ -2,7 +2,7 @@ import electron, { IpcRenderer } from 'electron';
 import Head from 'next/head';
 import Link from 'next/link';
 import React from 'react';
-import GitCommitComponent, { GitCommit } from '../components/git-commit.component';
+import GitCommitComponent, { GitCommit } from '../components/git-commit';
 
 interface CurrentBranch {
   data: string;
