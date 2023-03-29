@@ -4,31 +4,40 @@ function GitRef(props: GitRefProps) {
   function getElement(ref: string) {
     if (ref.includes('origin/HEAD')) {
       return null; // do not show
+    } else if (ref === '$') {
+      // Collapsed remote branch (has a local counterpart)
+      return (
+        <span className='flex h-full border border-green-300 bg-green-900 rounded px-2 mr-1'>
+          <img width='16px' height='16px' src='/images/git-branch.svg' />
+        </span>
+      );
     } else if (ref.includes('origin')) {
       // Remote branch
-      // TODO collapse remote branches to an icon when there is also a local version
       return (
-        <span className='whitespace-nowrap w-fit border-red-500 bg-red-900 rounded-full text-sm px-2 mr-px'>{ref}</span>
+        <span className='whitespace-nowrap w-fit border border-green-300 bg-green-900 rounded text-sm px-2 mr-1'>
+          {ref}
+        </span>
       );
     } else if (ref.includes('HEAD ->')) {
       // Local HEAD
-      const branch = ref.match(/HEAD -> (.*)/)[1];
+      const branch = '\u2713 ' + ref.match(/HEAD -> (.*)/)[1];
+      console.log('HEAD', branch);
       return (
-        <span className='whitespace-nowrap w-fit border-green-500 bg-green-900 rounded-full text-sm px-2 mr-px'>
-          {branch} {props.currentBranch === branch && <span>{'\u2713'}</span>}
+        <span className='whitespace-nowrap w-fit border border-red-300 bg-red-900 rounded text-sm px-2 mr-1'>
+          {branch}
         </span>
       );
     } else if (ref.includes('tag')) {
       // Tag
       return (
-        <span className='whitespace-nowrap w-fit border-blue-500 bg-blue-900 rounded-full text-sm px-2 mr-px'>
+        <span className='whitespace-nowrap w-fit border border-blue-300 bg-blue-900 rounded text-sm px-2 mr-1'>
           {ref.match(/tag: (.*)/)[1]}
         </span>
       );
     } else if (ref != '') {
       // Local branch
       return (
-        <span className='whitespace-nowrap w-fit border-green-500 bg-green-900 rounded-full text-sm px-2 mr-px'>
+        <span className='whitespace-nowrap w-fit border border-red-300 bg-red-900 rounded text-sm px-2 mr-1'>
           {ref}
         </span>
       );
@@ -44,6 +53,5 @@ function GitRef(props: GitRefProps) {
 export default GitRef;
 
 export interface GitRefProps {
-  currentBranch: string;
   gitRef: string;
 }

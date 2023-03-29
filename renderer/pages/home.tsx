@@ -4,20 +4,9 @@ import Link from 'next/link';
 import React from 'react';
 import GitCommitComponent, { GitCommit } from '../components/git-commit';
 
-interface CurrentBranch {
-  data: string;
-}
-
-interface History {
-  data: GitCommit[];
-}
-
 function Home() {
   const ipcRenderer: IpcRenderer = electron.ipcRenderer;
 
-  const [currentBranch, setCurrentBranch] = React.useState({
-    data: '',
-  } as CurrentBranch);
   const [cwd, setCwd] = React.useState('');
   const [history, setHistory] = React.useState({
     data: [] as GitCommit[],
@@ -31,9 +20,6 @@ function Home() {
   React.useEffect(() => {
     const cwd = ipcRenderer.sendSync('cwd');
     setCwd(cwd);
-
-    const currentBranch = ipcRenderer.sendSync('git:current-branch');
-    setCurrentBranch(currentBranch);
 
     const gitLog = ipcRenderer.sendSync('git:log');
     console.log('gitLog', gitLog);
@@ -56,7 +42,7 @@ function Home() {
         <ul>
           {history?.data?.map((commit, i) => (
             <li key={i} className='w-full flex m-px' onContextMenu={handleContextMenu}>
-              <GitCommitComponent commit={commit} currentBranch={currentBranch.data}></GitCommitComponent>
+              <GitCommitComponent commit={commit}></GitCommitComponent>
             </li>
           ))}
         </ul>
@@ -72,3 +58,7 @@ function Home() {
 }
 
 export default Home;
+
+interface History {
+  data: GitCommit[];
+}

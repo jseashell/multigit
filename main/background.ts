@@ -76,13 +76,6 @@ ipcMain.on('git:log', async (event, args) => {
   };
 });
 
-ipcMain.on('git:current-branch', async (event, args) => {
-  const currentBranch = (await git.branch()).current;
-  event.returnValue = {
-    data: currentBranch,
-  };
-});
-
 ipcMain.on('context-menu', (_, props) => {
   const menu = new Menu();
   if (props.isEditable) {
