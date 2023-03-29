@@ -15,6 +15,7 @@ function GitCommitComponent(props: GitCommitProps) {
         onContextMenu={handleContextMenu}>
         <span className='w-2 h-2 flex flex-none justify-center items-center rounded-full bg-purple-700 mx-1'></span>
         {sortRefs(props.commit?.refs).map((ref: string) => {
+          console.log('making ref', ref);
           return <GitRefComponent gitRef={ref}></GitRefComponent>;
         })}
         <span className='flex grow text-sm truncate'>{formatSubject(props.commit?.sanitizedSubject)}</span>
@@ -63,6 +64,7 @@ function sortRefs(refs?: string): string[] {
     refs
       .split(',')
       .map((ref) => ref.trim())
+      .sort((a, b) => a.replace(/origin\//g, '').localeCompare(b.replace(/origin\//g, '')))
       .forEach((ref) => {
         if (ref.includes('origin')) {
           firstSort.unshift(ref);
@@ -71,47 +73,55 @@ function sortRefs(refs?: string): string[] {
         }
       });
 
-    if (firstSort.length > 1) {
-      // next, co-mingle local branches to their remote counterpart
-      for (const ref of firstSort) {
-        console.log('handling', ref);
-        if (ref === 'origin/HEAD') {
-          // Remote HEAD
-          console.log('igonred', ref);
-          continue;
-        } else if (ref.includes('origin')) {
-          // Remote branch
-          // always place origins at the beginning
-          secondSort.unshift(ref);
-        } else if (ref.includes('HEAD ->')) {
-          // Local HEAD
-          const branch = ref.match(/HEAD -> (.*)/)[1];
-          const index = secondSort.indexOf(`origin/${branch}`);
-          // always use the ref during this sorting
-          if (index >= 0) {
-            const firstHalf = secondSort.slice(0, index);
-            const secondHalf = secondSort.slice(index + 1, secondSort.length);
-            secondSort = [...firstHalf, ref, ...secondHalf];
-          } else {
-            secondSort.push(ref);
-          }
-        } else if (ref != '') {
-          // Local branch
-          const remoteIndex = secondSort.indexOf(`origin/${ref}`);
-          if (remoteIndex >= 0) {
-            const firstHalf = secondSort.slice(0, remoteIndex); // up to, but excluding, the remote counterpart to this local branch
-            const collapsedRemote = '$';
-            const secondHalf = secondSort.slice(remoteIndex + 1, secondSort.length);
-            secondSort = [...firstHalf, collapsedRemote, ref, ...secondHalf];
-          } else {
-            secondSort.unshift(ref);
-          }
-        } else if (ref.includes('tag')) {
-          // Tag
-          // always place tags at the end
+    // next, co-mingle local branches to their remote counterpart
+    for (const ref of firstSort) {
+      if (ref === 'origin/HEAD') {
+        // Remote HEAD
+        continue;
+      } else if (ref.includes('origin')) {
+        // Remote branch
+        // always place origins at the beginning
+        secondSort.unshift(ref);
+      } else if (ref.includes('HEAD ->')) {
+        // Local HEAD
+        const branch = ref.match(/HEAD -> (.*)/)[1];
+        const index = secondSort.indexOf(`origin/${branch}`);
+        // always use the ref during this sorting
+        if (index >= 0) {
+          const firstHalf = secondSort.slice(0, index);
+          const secondHalf = secondSort.slice(index + 1, secondSort.length);
+          secondSort = [...firstHalf, ref, ...secondHalf];
+        } else {
           secondSort.push(ref);
         }
+      } else if (ref != '') {
+        // Local branch
+        const remoteIndex = secondSort.indexOf(`origin/${ref}`);
+        if (remoteIndex >= 0) {
+          const firstHalf = secondSort.slice(0, remoteIndex); // up to, but excluding, the remote counterpart to this local branch
+          const collapsedRemote = '$';
+          const secondHalf = secondSort.slice(remoteIndex + 1, secondSort.length);
+          secondSort = [...firstHalf, collapsedRemote, ref, ...secondHalf];
+        } else {
+          secondSort.unshift(ref);
+        }
+      } else if (ref.includes('tag')) {
+        // Tag
+        // always place tags at the end
+        secondSort.push(ref);
       }
+    }
+
+    const thirdSort = secondSort;
+    for (let ref of thirdSort) {
+      if (ref.includes('tag:')) {
+        thirdSort.splice(thirdSort.indexOf(ref), 1);
+        thirdSort.push(ref);
+      }
+    }
+
+    if (thirdSort.length > 1) {
+      console.log('refs', { refs: refs, thirdSort: thirdSort });
     }
   }
 
