@@ -64,12 +64,13 @@ ipcMain.on('git:log', async (event, args) => {
     '"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
 
   const gitLog = await git.log({
-    '--max-count': '5',
+    // '--max-count': '5',
     [pretty]: null,
   });
 
   const data = `[${gitLog.all[0].hash.substring(0, gitLog.all[0].hash.length - 1)}]`;
   const history = JSON.parse(data);
+
   event.returnValue = {
     data: history,
   };

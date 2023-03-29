@@ -1,7 +1,7 @@
 import React from 'react';
 
 function InitialsAvatar(props: InitialsAvatarProps) {
-  const initials = props.name.split(' ')[0].charAt(0) + props.name.split(' ')[1].charAt(0);
+  const initials = (props.name?.split(' ')[0]?.charAt(0) || '') + (props.name?.split(' ')[1]?.charAt(0) || '');
 
   const seededColor = (name: string) => {
     let hash = 0;
