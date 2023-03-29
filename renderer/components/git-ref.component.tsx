@@ -1,17 +1,14 @@
 import React from 'react';
 
-function GitRef(props) {
+export interface GitRefProps {
+  currentBranch: string;
+  gitRef: string;
+}
+
+function GitRef(props: GitRefProps) {
   function getElement(ref: string) {
     if (ref.includes('origin/HEAD')) {
       return null; // do not show
-    } else if (ref.includes('HEAD -> ')) {
-      // Local branch
-      const branch = ref.match(/HEAD -> (.*)/)[1];
-      return (
-        <span className='whitespace-nowrap w-fit border-green-500 bg-green-900 rounded-lg pl-2 pr-2'>
-          {branch} {props.currentBranch?.data === branch && <span>{'\u2713'}</span>}
-        </span>
-      );
     } else if (ref.includes('origin')) {
       // Remote branch
       return <span className='whitespace-nowrap w-fit border-red-500 bg-red-900 rounded-lg pl-2 pr-2 ml-1'>{ref}</span>;
@@ -33,6 +30,13 @@ function GitRef(props) {
       return (
         <span className='whitespace-nowrap w-fit border-blue-500 bg-blue-900 rounded-lg pl-2 pr-2 ml-1'>
           {ref.match(/tag: (.*)/)[1]}
+        </span>
+      );
+    } else {
+      // Local branch
+      return (
+        <span className='whitespace-nowrap w-fit border-green-500 bg-green-900 rounded-lg pl-2 pr-2'>
+          {ref} {props.currentBranch === ref && <span>{'\u2713'}</span>}
         </span>
       );
     }

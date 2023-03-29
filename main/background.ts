@@ -47,15 +47,26 @@ ipcMain.on('cwd', (event, args) => {
 });
 
 ipcMain.on('git:log', async (event, args) => {
+  // const history = await git.log({
+  //   '--all': null,
+  //   '--decorate': null,
+  //   '--oneline': null,
+  //   '--graph': null,
+  // });
+
   const history = await git.log({
-    '--all': null,
-    '--decorate': null,
-    '--oneline': null,
-    '--graph': null,
+    // '--max-count': '5',
+    // "body":"%b"
+    '--pretty=format:{"commit":"%H","abbreviated_commit":"%h","tree":"%T","abbreviated_tree":"%t","parent":"%P","abbreviated_parent":"%p","refs":"%D","sanitized_subject_line":"%f","subject":"%s","author":{"name":"%aN","email":"%aE","date":"%aI"},"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},':
+      null,
   });
-  console.debug('git:log', history);
+
+  // convert the history data to a valid JSON string: strip the trailing comma and adding array brackets around it
+  const json = JSON.parse(`[${history.all[0].hash.substring(0, history.all[0].hash.length - 1)}]`);
+  console.log('history', json);
+
   event.returnValue = {
-    data: history,
+    data: json,
   };
 });
 
