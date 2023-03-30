@@ -2,7 +2,7 @@
   "private": true,
   "name": "multigit",
   "description": "View multiple git histories in one dashboard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "John Schellinger",
   "license": "MIT",
   "repository": {
