@@ -10,7 +10,7 @@ function GitCommitComponent(props: GitCommitProps) {
   const handleContextMenu = () => {};
 
   const id = 'graph-' + props.commit?.abbreviatedCommit;
-  let parents: string[];
+  let parents: string[] = [];
   if (props.commit?.abbreviatedParent?.includes(' ')) {
     parents = props.commit?.abbreviatedParent.split(' ').map((parent) => 'graph-' + parent);
   } else if (props.commit?.abbreviatedParent) {
@@ -22,7 +22,7 @@ function GitCommitComponent(props: GitCommitProps) {
       <div
         className='flex w-full items-center select-none cursor-pointer overflow-hidden'
         onContextMenu={handleContextMenu}>
-        {props.commit?.abbreviatedParent?.includes(' ') && <span className='w-2 h-2 flex flex-none mx-1'></span>}
+        {props.commit?.abbreviatedParent?.includes(' ') && getIndents(props.graphIndent)}
         <span
           id={id}
           className='w-2 h-2 flex flex-none justify-center items-center rounded-full bg-purple-700 mx-1'></span>
@@ -34,10 +34,10 @@ function GitCommitComponent(props: GitCommitProps) {
         <span className='flex-none truncate text-sm pl-2 pr-2'>{props.commit?.author?.name}</span>
         <span className='flex-none text-sm pl-2 pr-2'>{props.commit?.abbreviatedCommit}</span>
         <span className='flex-none text-sm pl-2 pr-2'>{formatAuthorDate(props.commit?.author?.date)}</span>
-        {parents.length == 1 ? (
+        {parents?.length == 1 ? (
           <Xarrow start={id} end={parents[0]} strokeWidth={2} showHead={false} showTail={false} color={'#7e22ce'} />
         ) : (
-          parents.map((parent) => (
+          parents?.map((parent) => (
             <Xarrow start={id} end={parent} strokeWidth={2} showHead={false} showTail={false} color={'red'} />
           ))
         )}
@@ -51,6 +51,7 @@ export default GitCommitComponent;
 export interface GitCommitProps {
   commit: GitCommit;
   previousCommit: GitCommit;
+  graphIndent: number;
 }
 
 export interface GitCommit {
@@ -72,6 +73,14 @@ export interface GitCommit {
     email?: string;
     date?: string;
   };
+}
+
+function getIndents(graphIndent: number): any {
+  const indents = [];
+  for (let i = 0; i < graphIndent; i++) {
+    indents.push(<span className='w-2 h-2 flex flex-none mx-1'></span>);
+  }
+  return indents;
 }
 
 function sortRefs(refs?: string): string[] {

@@ -8,6 +8,7 @@ function Home() {
   const ipcRenderer: IpcRenderer = electron.ipcRenderer;
 
   const [cwd, setCwd] = React.useState('');
+  const [graphIndent, setGraphIndent] = React.useState(1);
   const [history, setHistory] = React.useState({
     data: [] as GitCommit[],
   } as History);
@@ -39,11 +40,16 @@ function Home() {
         <h1 className='text-lg text-gray-500'>{cwd}</h1>
         <hr />
         <ul>
-          {history?.data?.map((commit, i) => (
-            <li key={i} className='w-full flex m-px' onContextMenu={handleContextMenu}>
-              <GitCommitComponent commit={commit} previousCommit={i > 0 ? history.data[i] : null}></GitCommitComponent>
-            </li>
-          ))}
+          {history?.data?.map((commit, i) => {
+            return (
+              <li key={i} className='w-full flex m-px' onContextMenu={handleContextMenu}>
+                <GitCommitComponent
+                  commit={commit}
+                  previousCommit={i > 0 ? history.data[i] : null}
+                  graphIndent={graphIndent}></GitCommitComponent>
+              </li>
+            );
+          })}
         </ul>
         <hr />
       </div>
