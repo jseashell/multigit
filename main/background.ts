@@ -11,7 +11,8 @@ if (isProd) {
   app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
 
-const baseDir = '/Users/jschelli/git/know-client'; // process.cwd();
+const baseDir = process.cwd();
+// const baseDir = '/Users/jschelli/git/know-client';
 
 simpleGit().clean(CleanOptions.FORCE);
 const git = simpleGit({
@@ -48,23 +49,14 @@ ipcMain.on('cwd', (event, args) => {
 
 ipcMain.on('git:log', async (event, args) => {
   const pretty =
-    '--pretty=format:{' +
-    '"commit":"%H",' +
-    '"abbreviatedCommit":"%h",' +
-    '"tree":"%T",' +
-    '"abbreviatedTree":"%t",' +
-    '"parent":"%P",' +
-    '"abbreviatedParent":"%p",' +
-    '"refs":"%D",' +
-    // TODO Body and subject do not escape non-whitespace characters
-    // '"body":"%b",' +
-    // '"subject":"%s",' +
-    '"sanitizedSubject":"%f",' +
-    '"author":{"name":"%aN","email":"%aE","date":"%aI"},' +
-    '"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
+    '--pretty=format:{"commit":"%H","abbreviatedCommit":"%h","tree":"%T","abbreviatedTree":"%t","parent":"%P","abbreviatedParent":"%p","refs":"%D","sanitizedSubject":"%f","author":{"name":"%aN","email":"%aE","date":"%aI"},"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
+  // TODO Body and subject do not escape non-whitespace characters
+  // '"body":"%b",' +
+  // '"subject":"%s",' +
 
   const gitLog = await git.log({
-    '--max-count': '15',
+    // '--max-count': '15',
+    '--all': null,
     [pretty]: null,
   });
 
