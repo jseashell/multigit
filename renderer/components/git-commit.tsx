@@ -26,8 +26,8 @@ function GitCommitComponent(props: GitCommitProps) {
         <span
           id={id}
           className='w-2 h-2 flex flex-none justify-center items-center rounded-full bg-purple-700 mx-1'></span>
-        {sortRefs(props.commit?.refs).map((ref: string) => {
-          return <GitRefComponent gitRef={ref}></GitRefComponent>;
+        {sortRefs(props.commit?.refs).map((ref: string, i: number) => {
+          return <GitRefComponent key={i} gitRef={ref}></GitRefComponent>;
         })}
         <span className='flex grow text-sm truncate'>{formatSubject(props.commit?.sanitizedSubject)}</span>
         <InitialsAvatar name={props.commit?.author?.name}></InitialsAvatar>
@@ -37,8 +37,8 @@ function GitCommitComponent(props: GitCommitProps) {
         {parents?.length == 1 ? (
           <Xarrow start={id} end={parents[0]} strokeWidth={2} showHead={false} showTail={false} color={'#7e22ce'} />
         ) : (
-          parents?.map((parent) => (
-            <Xarrow start={id} end={parent} strokeWidth={2} showHead={false} showTail={false} color={'red'} />
+          parents?.map((parent: string, i: number) => (
+            <Xarrow key={i} start={id} end={parent} strokeWidth={2} showHead={false} showTail={false} color={'red'} />
           ))
         )}
       </div>
