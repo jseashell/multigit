@@ -8,7 +8,7 @@ function GitRef(props: GitRefProps) {
       // Collapsed remote branch (has a local counterpart)
       return (
         <span className='flex h-full border border-green-300 bg-green-900 rounded px-2 mr-1'>
-          <img width='16px' height='16px' src='/images/git-branch.svg' />
+          <img className='max-w-none' width='16px' height='16px' src='/images/git-branch.svg' />
         </span>
       );
     } else if (ref.includes('origin')) {
