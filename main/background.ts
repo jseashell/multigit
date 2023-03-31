@@ -11,16 +11,7 @@ if (isProd) {
   app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
 
-const baseDir = process.cwd();
-// const baseDir = '/Users/jschelli/git/know-client';
-
 simpleGit().clean(CleanOptions.FORCE);
-const git = simpleGit({
-  baseDir: baseDir,
-  binary: 'git',
-  maxConcurrentProcesses: 6,
-  trimmed: false,
-});
 
 (async () => {
   await app.whenReady();
@@ -43,16 +34,20 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
-ipcMain.on('cwd', (event, args) => {
-  event.returnValue = baseDir;
-});
-
 ipcMain.on('git:log', async (event, args) => {
   const pretty =
     '--pretty=format:{"commit":"%H","abbreviatedCommit":"%h","tree":"%T","abbreviatedTree":"%t","parent":"%P","abbreviatedParent":"%p","refs":"%D","sanitizedSubject":"%f","author":{"name":"%aN","email":"%aE","date":"%aI"},"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
   // TODO Body and subject do not escape non-whitespace characters
   // '"body":"%b",' +
   // '"subject":"%s",' +
+
+  console.log(`initializing git for ${args.cwd}`);
+  const git = simpleGit({
+    baseDir: args.cwd,
+    binary: 'git',
+    maxConcurrentProcesses: 6,
+    trimmed: false,
+  });
 
   const gitLog = await git.log({
     // '--max-count': '15',
@@ -61,11 +56,14 @@ ipcMain.on('git:log', async (event, args) => {
   });
 
   const data = `[${gitLog.all[0].hash.substring(0, gitLog.all[0].hash.length - 1)}]`;
-  const history = JSON.parse(data);
+  const commits = JSON.parse(data);
 
-  event.returnValue = {
-    data: history,
+  const returnValue = {
+    cwd: args.cwd,
+    commits: commits,
   };
+
+  event.returnValue = returnValue;
 });
 
 ipcMain.on('context-menu', (_, props) => {
