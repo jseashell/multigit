@@ -42,59 +42,75 @@ function Home() {
     setHistory1(history_1);
 
     const history2: GitHistory = ipcRenderer.sendSync('git:log', { cwd: '/Users/jschelli/git/know-client' });
-
     let stack = [...parents2];
     const newEl2 = history2?.commits?.map((commit, i) => {
       let popMessage = '';
-
-      const index = stack.indexOf(commit.abbreviatedCommit);
-      if (index > -1) {
+      let index = stack.indexOf(commit.abbreviatedCommit);
+      if (index >= 0) {
         const stemp = stack;
         stack = stack.filter((c) => c !== commit.abbreviatedCommit);
         popMessage = `stack:[${stemp}] pops [${index}]"${commit.abbreviatedCommit}"`;
+      } else {
+        index = 0;
       }
-
       commit.abbreviatedParent?.split(' ').forEach((parent) => stack.push(parent));
-
-      let includeArrows = true;
+      let includeArrows = true; // most common case
       commit.abbreviatedParent?.split(' ').forEach((parent) => {
         if (!history2.commits.map((commit) => commit.abbreviatedCommit).includes(parent)) {
           includeArrows = false;
         }
       });
 
+      const previousCommitHash = i > 0 ? history2.commits[i - 1].abbreviatedCommit : null;
       const commitHash = commit.abbreviatedCommit;
       const parentHashes = commit.abbreviatedParent.split(' ');
 
       return (
         <li key={i} className='w-full flex mx-px' onContextMenu={handleContextMenu}>
-          <GitCommitComponent
-            commit={commit}
-            graphIndent={index}
-            totalIndents={stack.length}
-            color={colors[i]}></GitCommitComponent>
+          {previousCommitHash && getIndents(index, previousCommitHash)}
+          {/* Commit dot */}
+          <span
+            id={commitHash}
+            className='w-2 h-2 flex flex-none justify-center items-center rounded-full ml-8 my-4'
+            style={{ backgroundColor: colors[index > -1 ? index : 0] }}></span>
+          <GitCommitComponent commit={commit}></GitCommitComponent>
+
           <div className='flex items-center'>
             <span className='flex-none text-sm mx-1'>parents:[{parentHashes.join(',')}]</span>
             <span className='flex-none text-sm mx-1'>{popMessage}</span>
             <span className='flex-none text-sm mx-1'>new stack:[{stack.join(',')}]</span>
           </div>
-          {includeArrows &&
-            stack.map((parent: string, i: number) => {
-              return (
-                <li key={i} className='text-xs'>
-                  <Xarrow
-                    key={i}
-                    start={commitHash}
-                    end={parent}
-                    // labels={{ start: commitHash, end: parent }}
-                    strokeWidth={2}
-                    showHead={true}
-                    showTail={false}
-                    color={colors[i]}
-                  />
-                </li>
-              );
-            })}
+
+          {includeArrows && (
+            <Xarrow
+              key={i}
+              start={commitHash}
+              end={history2.commits[i + 1].abbreviatedCommit} // next commit
+              strokeWidth={2}
+              showHead={true}
+              showTail={false}
+              color={colors[index]}
+            />
+          )}
+          {includeArrows && (
+            <ul>
+              {parentHashes.map((parentHash: string, i: number) => {
+                return (
+                  <li key={i} className='text-xs'>
+                    <Xarrow
+                      key={i}
+                      start={commitHash}
+                      end={parentHash}
+                      strokeWidth={2}
+                      showHead={true}
+                      showTail={false}
+                      color={colors[index]}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </li>
       );
     });
@@ -149,4 +165,29 @@ export default Home;
 interface GitHistory {
   cwd: string;
   commits: GitCommit[];
+}
+
+function getIndents(limit: number, commitHash: string): any {
+  const indents = [];
+  for (let i = 0; i < limit; i++) {
+    indents.push(
+      <React.Fragment>
+        <span
+          key={i}
+          id={`${commitHash}-indent-${i}`}
+          className='w-2 h-2 flex flex-none rounded-full ml-8 my-4'
+          style={{ backgroundColor: limit > 1 ? colors[i] : colors[0] }}></span>
+        <Xarrow
+          key={i}
+          start={commitHash}
+          end={`${commitHash}-indent-${i}`}
+          strokeWidth={2}
+          showHead={false}
+          showTail={false}
+          color={limit > 1 ? colors[i] : colors[0]}
+        />
+      </React.Fragment>,
+    );
+  }
+  return indents;
 }

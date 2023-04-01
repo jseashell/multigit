@@ -11,13 +11,7 @@ function GitCommitComponent(props: GitCommitProps) {
   return (
     // <div className='flex w-full items-center cursor-pointer overflow-hidden m-3' onContextMenu={handleContextMenu}>
     <div className='flex items-center cursor-pointer overflow-hidden m-3' onContextMenu={handleContextMenu}>
-      {getIndents(props.graphIndent, props.color)}
-      <span
-        id={commitHash}
-        className='w-2 h-2 flex flex-none justify-center items-center rounded-full m-4'
-        style={{ backgroundColor: props.color }}></span>
-      {getIndents(props.totalIndents - props.graphIndent, props.color)}
-      <ul>
+      <ul className='flex flex-none'>
         {sortRefs(props.commit?.refs).map((ref: string, i: number) => {
           return (
             <li key={i}>
@@ -39,9 +33,6 @@ export default GitCommitComponent;
 
 export interface GitCommitProps {
   commit: GitCommit;
-  graphIndent: number;
-  totalIndents: number;
-  color: string;
 }
 
 export interface GitCommit {
@@ -63,14 +54,6 @@ export interface GitCommit {
     email?: string;
     date?: string;
   };
-}
-
-function getIndents(limit: number, color: string): any {
-  const indents = [];
-  for (let i = 0; i < limit; i++) {
-    indents.push(<span key={i} className='w-2 h-2 flex flex-none m-4'></span>);
-  }
-  return indents;
 }
 
 function sortRefs(refs?: string): string[] {
