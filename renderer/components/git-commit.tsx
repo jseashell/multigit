@@ -1,44 +1,36 @@
 import electron, { IpcRenderer } from 'electron';
-import Xarrow from 'react-xarrows';
 import GitRefComponent from './git-ref';
-import InitialsAvatar from './initials-avatar';
 
 function GitCommitComponent(props: GitCommitProps) {
   const ipcRenderer: IpcRenderer = electron.ipcRenderer;
 
   const handleContextMenu = () => {};
 
-  const id = 'graph-' + props.commit?.abbreviatedCommit;
-  let parents: string[] = [];
-  if (props.commit?.abbreviatedParent?.includes(' ')) {
-    parents = props.commit?.abbreviatedParent.split(' ').map((parent) => 'graph-' + parent);
-  } else if (props.commit?.abbreviatedParent) {
-    parents = ['graph-' + props.commit?.abbreviatedParent];
-  }
+  const commitHash = props.commit?.abbreviatedCommit;
 
   return (
-    <div
-      className='flex w-full items-center select-none cursor-pointer overflow-hidden'
-      onContextMenu={handleContextMenu}>
-      {props.commit?.abbreviatedParent?.includes(' ') && getIndents(props.graphIndent)}
+    // <div className='flex w-full items-center cursor-pointer overflow-hidden m-3' onContextMenu={handleContextMenu}>
+    <div className='flex items-center cursor-pointer overflow-hidden m-3' onContextMenu={handleContextMenu}>
+      {getIndents(props.graphIndent, props.color)}
       <span
-        id={id}
-        className='w-2 h-2 flex flex-none justify-center items-center rounded-full bg-purple-700 mx-1'></span>
-      {sortRefs(props.commit?.refs).map((ref: string) => {
-        return <GitRefComponent gitRef={ref}></GitRefComponent>;
-      })}
-      <span className='flex grow text-sm truncate'>{formatSubject(props.commit?.sanitizedSubject)}</span>
+        id={commitHash}
+        className='w-2 h-2 flex flex-none justify-center items-center rounded-full m-4'
+        style={{ backgroundColor: props.color }}></span>
+      {getIndents(props.totalIndents - props.graphIndent, props.color)}
+      <ul>
+        {sortRefs(props.commit?.refs).map((ref: string, i: number) => {
+          return (
+            <li key={i}>
+              <GitRefComponent gitRef={ref}></GitRefComponent>
+            </li>
+          );
+        })}
+      </ul>
+      {/* <span className='flex grow text-sm truncate'>{formatSubject(props.commit?.sanitizedSubject)}</span>
       <InitialsAvatar name={props.commit?.author?.name}></InitialsAvatar>
-      <span className='flex-none truncate text-sm pl-2 pr-2'>{props.commit?.author?.name}</span>
-      <span className='flex-none text-sm pl-2 pr-2'>{props.commit?.abbreviatedCommit}</span>
-      <span className='flex-none text-sm pl-2 pr-2'>{formatAuthorDate(props.commit?.author?.date)}</span>
-      {parents?.length == 1 ? (
-        <Xarrow start={id} end={parents[0]} strokeWidth={2} showHead={false} showTail={false} color={'#7e22ce'} />
-      ) : (
-        parents?.map((parent) => (
-          <Xarrow start={id} end={parent} strokeWidth={2} showHead={false} showTail={false} color={'red'} />
-        ))
-      )}
+      <span className='flex-none truncate text-sm pl-2 pr-2'>{props.commit?.author?.name}</span> */}
+      <span className='flex-none text-sm mx-1'>{props.commit?.abbreviatedCommit}</span>
+      {/* <span className='flex-none text-sm pl-2 pr-2'>{formatAuthorDate(props.commit?.author?.date)}</span> */}
     </div>
   );
 }
@@ -47,8 +39,9 @@ export default GitCommitComponent;
 
 export interface GitCommitProps {
   commit: GitCommit;
-  previousCommit: GitCommit;
   graphIndent: number;
+  totalIndents: number;
+  color: string;
 }
 
 export interface GitCommit {
@@ -72,10 +65,10 @@ export interface GitCommit {
   };
 }
 
-function getIndents(graphIndent: number): any {
+function getIndents(limit: number, color: string): any {
   const indents = [];
-  for (let i = 0; i < graphIndent; i++) {
-    indents.push(<span className='w-2 h-2 flex flex-none mx-1'></span>);
+  for (let i = 0; i < limit; i++) {
+    indents.push(<span key={i} className='w-2 h-2 flex flex-none m-4'></span>);
   }
   return indents;
 }

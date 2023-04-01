@@ -50,8 +50,8 @@ ipcMain.on('git:log', async (event, args) => {
   });
 
   const gitLog = await git.log({
-    // '--max-count': '15',
-    '--all': null,
+    '--max-count': '22',
+    // '--all': null,
     [pretty]: null,
   });
 
