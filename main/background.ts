@@ -1,5 +1,6 @@
-import { app, ipcMain, Menu, MenuItem } from 'electron';
+import { Menu, MenuItem, app, ipcMain } from 'electron';
 import serve from 'electron-serve';
+import { GitCommit, GitHistory } from 'renderer/types';
 import simpleGit, { CleanOptions } from 'simple-git';
 import { createWindow } from './helpers';
 
@@ -36,12 +37,11 @@ app.on('window-all-closed', () => {
 
 ipcMain.on('git:log', async (event, args) => {
   const pretty =
-    '--pretty=format:{"commit":"%H","abbreviatedCommit":"%h","tree":"%T","abbreviatedTree":"%t","parent":"%P","abbreviatedParent":"%p","refs":"%D","sanitizedSubject":"%f","author":{"name":"%aN","email":"%aE","date":"%aI"},"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
+    '--pretty=format:{"hash":"%H","abbreviatedHash":"%h","tree":"%T","abbreviatedTree":"%t","parent":"%P","abbreviatedParent":"%p","refs":"%D","sanitizedSubject":"%f","author":{"name":"%aN","email":"%aE","date":"%aI"},"commiter":{"name":"%cN","email":"%cE","date":"%cI"}},';
   // TODO Body and subject do not escape non-whitespace characters
   // '"body":"%b",' +
   // '"subject":"%s",' +
 
-  console.log(`initializing git for ${args.cwd}`);
   const git = simpleGit({
     baseDir: args.cwd,
     binary: 'git',
@@ -56,9 +56,9 @@ ipcMain.on('git:log', async (event, args) => {
   });
 
   const data = `[${gitLog.all[0].hash.substring(0, gitLog.all[0].hash.length - 1)}]`;
-  const commits = JSON.parse(data);
+  const commits: GitCommit[] = JSON.parse(data);
 
-  const returnValue = {
+  const returnValue: GitHistory = {
     cwd: args.cwd,
     commits: commits,
   };

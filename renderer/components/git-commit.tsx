@@ -1,12 +1,9 @@
-import electron, { IpcRenderer } from 'electron';
+import { GitCommit } from 'renderer/types';
 import GitRefComponent from './git-ref';
+import InitialsAvatar from './initials-avatar';
 
 function GitCommitComponent(props: GitCommitProps) {
-  const ipcRenderer: IpcRenderer = electron.ipcRenderer;
-
   const handleContextMenu = () => {};
-
-  const commitHash = props.commit?.abbreviatedCommit;
 
   return (
     // <div className='flex w-full items-center cursor-pointer overflow-hidden m-3' onContextMenu={handleContextMenu}>
@@ -20,10 +17,10 @@ function GitCommitComponent(props: GitCommitProps) {
           );
         })}
       </ul>
-      {/* <span className='flex grow text-sm truncate'>{formatSubject(props.commit?.sanitizedSubject)}</span>
+      {/* <span className='flex grow text-sm truncate'>{formatSubject(props.commit?.sanitizedSubject)}</span> */}
       <InitialsAvatar name={props.commit?.author?.name}></InitialsAvatar>
-      <span className='flex-none truncate text-sm pl-2 pr-2'>{props.commit?.author?.name}</span> */}
-      <span className='flex-none text-sm mx-1'>{props.commit?.abbreviatedCommit}</span>
+      {/* <span className='flex-none truncate text-sm pl-2 pr-2'>{props.commit?.author?.name}</span> */}
+      <span className='flex-none text-sm mx-1'>{props.commit?.abbreviatedHash}</span>
       {/* <span className='flex-none text-sm pl-2 pr-2'>{formatAuthorDate(props.commit?.author?.date)}</span> */}
     </div>
   );
@@ -33,27 +30,6 @@ export default GitCommitComponent;
 
 export interface GitCommitProps {
   commit: GitCommit;
-}
-
-export interface GitCommit {
-  commit?: string;
-  abbreviatedCommit?: string;
-  tree?: string;
-  abbreviatedTree?: string;
-  parent?: string;
-  abbreviatedParent?: string;
-  refs?: string;
-  sanitizedSubject?: string;
-  author?: {
-    name?: string;
-    email: string;
-    date?: string;
-  };
-  commiter?: {
-    name?: string;
-    email?: string;
-    date?: string;
-  };
 }
 
 function sortRefs(refs?: string): string[] {
