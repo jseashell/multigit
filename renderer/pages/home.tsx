@@ -29,7 +29,7 @@ function Home() {
     cwd: '',
     commits: [] as GitCommit[],
   });
-  const [parents2, setParents2] = React.useState<string[]>([]);
+  const [stack, setStack] = React.useState<string[]>([]);
   const [el2, setEl2] = React.useState<JSX.Element[]>([]);
 
   // If we use ipcRenderer in this scope, we must check the instance exists
@@ -42,31 +42,38 @@ function Home() {
     setHistory1(history_1);
 
     const history2: GitHistory = ipcRenderer.sendSync('git:log', { cwd: '/Users/jschelli/git/know-client' });
-    let stack = [...parents2];
+
     const newEl2 = history2?.commits?.map((commit, i) => {
       let popMessage = '';
-      let index = stack.indexOf(commit.abbreviatedCommit);
+      let index = stack.indexOf(commit.abbreviatedHash);
+      console.log(`stack(${commit.abbreviatedHash})`, index, stack);
       if (index >= 0) {
-        const stemp = stack;
-        stack = stack.filter((c) => c !== commit.abbreviatedCommit);
-        popMessage = `stack:[${stemp}] pops [${index}]"${commit.abbreviatedCommit}"`;
+        let popped = stack.filter((c) => c !== commit.abbreviatedHash); // make sure to remove all instances, not just the first one
+        setStack(() => popped);
+        console.log('popped', commit.abbreviatedHash);
       } else {
         index = 0;
       }
-      commit.abbreviatedParent?.split(' ').forEach((parent) => stack.push(parent));
+
       let includeArrows = true; // most common case
       commit.abbreviatedParent?.split(' ').forEach((parent) => {
-        if (!history2.commits.map((commit) => commit.abbreviatedCommit).includes(parent)) {
+        stack.push(parent);
+
+        if (!history2.commits.map((commit) => commit.abbreviatedHash).includes(parent)) {
           includeArrows = false;
         }
       });
+      console.log('pushed', commit.abbreviatedParent?.split(' '));
 
-      const previousCommitHash = i > 0 ? history2.commits[i - 1].abbreviatedCommit : null;
-      const commitHash = commit.abbreviatedCommit;
+      const previousCommitHash = i > 0 ? history2.commits[i - 1].abbreviatedHash : null;
+      const commitHash = commit.abbreviatedHash;
       const parentHashes = commit.abbreviatedParent.split(' ');
 
+      setStack(() => stack);
+      console.log('stack', stack);
+
       return (
-        <li key={i} className='w-full flex mx-px' onContextMenu={handleContextMenu}>
+        <li key={`${commit.abbreviatedHash}-row-${i}`} className='w-full flex mx-px' onContextMenu={handleContextMenu}>
           {previousCommitHash && getIndents(index, previousCommitHash)}
           {/* Commit dot */}
           <span
@@ -78,14 +85,14 @@ function Home() {
           <div className='flex items-center'>
             <span className='flex-none text-sm mx-1'>parents:[{parentHashes.join(',')}]</span>
             <span className='flex-none text-sm mx-1'>{popMessage}</span>
-            <span className='flex-none text-sm mx-1'>new stack:[{stack.join(',')}]</span>
+            <span className='flex-none text-sm mx-1'>stack:[{stack.join(',')}]</span>
           </div>
 
           {includeArrows && (
             <Xarrow
-              key={i}
+              key={`${commitHash}-${i}`}
               start={commitHash}
-              end={history2.commits[i + 1].abbreviatedCommit} // next commit
+              end={history2.commits[i + 1].abbreviatedHash} // next commit
               strokeWidth={2}
               showHead={true}
               showTail={false}
@@ -96,7 +103,7 @@ function Home() {
             <ul>
               {parentHashes.map((parentHash: string, i: number) => {
                 return (
-                  <li key={i} className='text-xs'>
+                  <li key={`${parentHash}-${i}`} className='text-xs'>
                     <Xarrow
                       key={i}
                       start={commitHash}
@@ -173,12 +180,12 @@ function getIndents(limit: number, commitHash: string): any {
     indents.push(
       <React.Fragment>
         <span
-          key={i}
+          key={`${commitHash}-indent-${i}`}
           id={`${commitHash}-indent-${i}`}
           className='w-2 h-2 flex flex-none rounded-full ml-8 my-4'
           style={{ backgroundColor: limit > 1 ? colors[i] : colors[0] }}></span>
         <Xarrow
-          key={i}
+          key={`${commitHash}-arrow-${i}`}
           start={commitHash}
           end={`${commitHash}-indent-${i}`}
           strokeWidth={2}
